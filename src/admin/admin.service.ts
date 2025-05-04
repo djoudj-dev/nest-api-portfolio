@@ -8,7 +8,7 @@ import {
 import { PrismaService } from 'prisma/prisma.service';
 import { UpdateAdminDto } from './dto/update-admin.dto';
 import { AdminResponseDto } from './dto/admin-response.dto';
-import { User } from '@prisma/client';
+import { User, Role } from '@prisma/client';
 import * as bcrypt from 'bcryptjs';
 import { CreateAdminDto } from './dto/create-admin.dto';
 import { JwtService } from '@nestjs/jwt';
@@ -16,6 +16,7 @@ import { JwtService } from '@nestjs/jwt';
 export interface CreateAdminInput {
   email: string;
   password: string;
+  role?: Role;
 }
 
 @Injectable()
@@ -45,9 +46,10 @@ export class AdminService {
     const user = await this.create({
       email,
       password: hashedPassword,
+      role: Role.ADMIN, // Set role to ADMIN for the first user
     });
 
-    const payload = { sub: user.id, email: user.email };
+    const payload = { sub: user.id, email: user.email, role: user.role };
 
     // Generate an access token and refresh token
     const access_token = await this.jwtService.signAsync(payload);
@@ -74,15 +76,15 @@ export class AdminService {
     if (!user || !(await bcrypt.compare(password, user.password))) {
       throw new UnauthorizedException();
     }
-    const payload = { sub: user.id, email: user.email };
+    const payload = { sub: user.id, email: user.email, role: user.role };
 
-    // Generate access token and refresh token
+    // Generate an access token and refresh token
     const access_token = await this.jwtService.signAsync(payload);
     const refresh_token = await this.jwtService.signAsync(payload, {
       expiresIn: '7d',
     });
 
-    // Save tokens to database
+    // Save tokens to a database
     await this.updateToken(user.id, access_token);
     await this.updateRefreshToken(user.id, refresh_token);
 
@@ -145,6 +147,7 @@ export class AdminService {
   async generateAccessToken(payload: {
     sub: number;
     email: string;
+    role: Role;
   }): Promise<string> {
     return this.jwtService.signAsync(payload);
   }
@@ -152,6 +155,7 @@ export class AdminService {
   async generateRefreshToken(payload: {
     sub: number;
     email: string;
+    role: Role;
   }): Promise<string> {
     return this.jwtService.signAsync(payload, {
       expiresIn: '7d',
@@ -167,9 +171,10 @@ export class AdminService {
   }
 
   public excludeSensitive(user: User): AdminResponseDto {
-    const { id, email, createdAt, updatedAt } = user as {
+    const { id, email, role, createdAt, updatedAt } = user as {
       id: number;
       email: string;
+      role: Role;
       createdAt: Date;
       updatedAt: Date;
     };
@@ -177,6 +182,7 @@ export class AdminService {
     const dto = new AdminResponseDto();
     dto.id = id;
     dto.email = email;
+    dto.role = role;
     dto.createdAt = createdAt;
     dto.updatedAt = updatedAt;
     return dto;
