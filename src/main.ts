@@ -10,6 +10,16 @@ async function bootstrap() {
     .setDescription('Api du portfolio de <NAME>')
     .setVersion('1.0')
     .addTag('djoudj')
+    .addBearerAuth(
+      {
+        type: 'http',
+        scheme: 'bearer',
+        bearerFormat: 'JWT',
+        name: 'Authorization',
+        in: 'header',
+      },
+      'jwt',
+    )
     .build();
   const documentFactory = () => SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, documentFactory);
