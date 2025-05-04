@@ -8,6 +8,7 @@ import { AdminService } from '../admin/admin.service';
 import * as bcrypt from 'bcryptjs';
 import { CreateAdminDto } from '../admin/dto/create-admin.dto';
 import { JwtService } from '@nestjs/jwt';
+import { Role } from '@prisma/client';
 
 @Injectable()
 export class AuthService {
@@ -36,9 +37,10 @@ export class AuthService {
     const user = await this.adminService.create({
       email,
       password: hashedPassword,
+      role: Role.ADMIN, // Set role to ADMIN for the first user
     });
 
-    const payload = { sub: user.id, email: user.email };
+    const payload = { sub: user.id, email: user.email, role: user.role };
 
     // Generate an access token and refresh token
     const access_token = await this.jwtService.signAsync(payload);
@@ -65,7 +67,7 @@ export class AuthService {
     if (!user || !(await bcrypt.compare(password, user.password))) {
       throw new UnauthorizedException();
     }
-    const payload = { sub: user.id, email: user.email };
+    const payload = { sub: user.id, email: user.email, role: user.role };
 
     // Generate access token and refresh token
     const access_token = await this.jwtService.signAsync(payload);

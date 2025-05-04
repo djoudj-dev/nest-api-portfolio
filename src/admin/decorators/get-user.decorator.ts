@@ -1,16 +1,8 @@
 import { createParamDecorator, ExecutionContext } from '@nestjs/common';
-import { Request } from 'express';
-
-interface JwtPayload {
-  sub: number;
-  email: string;
-  iat?: number;
-  exp?: number;
-}
-
-interface RequestWithUser extends Request {
-  user: JwtPayload;
-}
+import {
+  JwtPayload,
+  RequestWithUser,
+} from '../interfaces/jwt-payload.interface';
 
 export const GetUser = createParamDecorator(
   (data: unknown, ctx: ExecutionContext): JwtPayload => {
