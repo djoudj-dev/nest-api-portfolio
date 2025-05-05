@@ -30,3 +30,27 @@ model User {
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 }
+
+enum BadgeStatusType {
+  available
+  available_from
+  unavailable
+}
+
+model BadgeStatus {
+  id             String            @id @default(cuid())
+  status         BadgeStatusType[]
+  available_from DateTime?
+  contractTypes  ContractType[]    @relation("StatusToContractTypes")
+  created        DateTime          @default(now())
+  updated        DateTime          @updatedAt
+}
+
+model ContractType {
+  id       String        @id @default(cuid())
+  label    String
+  text     String
+  statuses BadgeStatus[] @relation("StatusToContractTypes")
+  created  DateTime      @default(now())
+  updated  DateTime      @updatedAt
+}
