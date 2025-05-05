@@ -1,5 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { PrismaService } from '../../prisma/prisma.service';
+import { PrismaService } from '../prisma/prisma.service';
 import { CreateBadgeStatusDto } from './dto/create-badge-status.dto';
 import { UpdateBadgeStatusDto } from './dto/update-badge-status.dto';
 import { BadgeStatusResponseDto } from './dto/badge-status-response.dto';
