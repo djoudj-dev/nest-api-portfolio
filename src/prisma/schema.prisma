@@ -1,0 +1,67 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider        = "prisma-client-js"
+  output          = "../../node_modules/.prisma/client"
+  previewFeatures = ["postgresqlExtensions"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+model User {
+  id            String   @id @default(cuid())
+  email         String   @unique
+  password      String
+  role          Role     @default(ADMIN)
+  access_token  String?
+  refresh_token String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+enum BadgeStatusType {
+  available
+  available_from
+  unavailable
+}
+
+model BadgeStatus {
+  id             String            @id @default(cuid())
+  status         BadgeStatusType[]
+  available_from DateTime?
+  contractTypes  ContractType[]    @relation("StatusToContractTypes")
+  created        DateTime          @default(now())
+  updated        DateTime          @updatedAt
+}
+
+model ContractType {
+  id       String        @id @default(cuid())
+  label    String
+  text     String
+  statuses BadgeStatus[] @relation("StatusToContractTypes")
+  created  DateTime      @default(now())
+  updated  DateTime      @updatedAt
+}
+
+model Hero {
+  id          String   @id @default(cuid())
+  first_name  String
+  last_name   String
+  title       String
+  description String
+  cv_path     String?
+  created     DateTime @default(now())
+  updated     DateTime @updatedAt
+}
