@@ -5,7 +5,6 @@ import {
   HttpCode,
   HttpStatus,
   Param,
-  ParseIntPipe,
   Patch,
   Post,
   UseGuards,
@@ -24,9 +23,6 @@ import { ApiBearerAuth } from '@nestjs/swagger';
 export class AdminController {
   constructor(private readonly adminService: AdminService) {}
 
-  /**
-   * Helper method to generate and update tokens
-   */
   private async generateAndUpdateTokens(
     user: JwtPayload,
   ): Promise<{ access_token: string; refresh_token: string }> {
@@ -58,7 +54,7 @@ export class AdminController {
   @UseGuards(AuthGuard, AdminRoleGuard)
   @Patch(':id')
   async update(
-    @Param('id', ParseIntPipe) id: number,
+    @Param('id') id: string,
     @Body() updateAdminDto: UpdateAdminDto,
     @GetUser() user: JwtPayload,
   ) {
@@ -74,10 +70,7 @@ export class AdminController {
   @UseGuards(AuthGuard, AdminRoleGuard)
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
-  async remove(
-    @Param('id', ParseIntPipe) id: number,
-    @GetUser() user: JwtPayload,
-  ) {
+  async remove(@Param('id') id: string, @GetUser() user: JwtPayload) {
     await this.adminService.remove(id);
     await this.generateAndUpdateTokens(user);
   }
