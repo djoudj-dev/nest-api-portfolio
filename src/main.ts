@@ -4,7 +4,16 @@ import { AppModule } from './app.module';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  app.enableCors();
+
+  // Configure CORS to allow requests from the frontend URL specified in environment variables
+  // In development: http://localhost:4200
+  // In production: https://nedellec-julien.fr
+  const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:4200';
+  app.enableCors({
+    origin: frontendUrl,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+    credentials: true,
+  });
 
   const config = new DocumentBuilder()
     .setTitle('API du Portfolio')
