@@ -1,9 +1,9 @@
 import { IsArray, IsOptional, IsDateString } from 'class-validator';
-import { BadgeStatus } from '@prisma/client';
+import { BadgeStatusType } from '@prisma/client';
 
 export class CreateBadgeStatusDto {
   @IsArray()
-  status: BadgeStatus[];
+  status: BadgeStatusType[];
 
   @IsOptional()
   @IsDateString()
