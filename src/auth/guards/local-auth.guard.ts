@@ -39,7 +39,7 @@ export class LocalAuthGuard implements CanActivate {
 
       // Attach the user to the request
       request.user = {
-        sub: 0, // This would be the user ID in a real implementation
+        sub: '0', // This would be the user ID in a real implementation
         email: result.email,
         role: 'ADMIN' as const, // This would be the user role in a real implementation
         access_token: result.access_token,
