@@ -107,7 +107,7 @@ export class AdminService {
     return this.excludeSensitive(user);
   }
 
-  async findOne(id: number) {
+  async findOne(id: string) {
     const user = await this.prisma.user.findUnique({ where: { id } });
     if (!user) throw new NotFoundException('User not found');
     return this.excludeSensitive(user);
@@ -117,7 +117,7 @@ export class AdminService {
     return this.prisma.user.findUnique({ where: { email } });
   }
 
-  async update(id: number, dto: UpdateAdminDto) {
+  async update(id: string, dto: UpdateAdminDto) {
     if (dto.password) {
       dto.password = await bcrypt.hash(dto.password, 10);
     }
@@ -130,22 +130,22 @@ export class AdminService {
     return this.excludeSensitive(updated);
   }
 
-  async updateRefreshToken(id: number, refreshToken: string) {
+  async updateRefreshToken(id: string, refreshToken: string) {
     await this.prisma.user.update({
       where: { id },
-      data: { refreshToken },
+      data: { refresh_token: refreshToken },
     });
   }
 
-  async updateToken(id: number, token: string) {
+  async updateToken(id: string, token: string) {
     await this.prisma.user.update({
       where: { id },
-      data: { token },
+      data: { access_token: token },
     });
   }
 
   async generateAccessToken(payload: {
-    sub: number;
+    sub: string;
     email: string;
     role: Role;
   }): Promise<string> {
@@ -153,7 +153,7 @@ export class AdminService {
   }
 
   async generateRefreshToken(payload: {
-    sub: number;
+    sub: string;
     email: string;
     role: Role;
   }): Promise<string> {
@@ -162,7 +162,7 @@ export class AdminService {
     });
   }
 
-  async remove(id: number) {
+  async remove(id: string) {
     await this.prisma.user.delete({ where: { id } });
   }
 
@@ -172,7 +172,7 @@ export class AdminService {
 
   public excludeSensitive(user: User): AdminResponseDto {
     const { id, email, role, createdAt, updatedAt } = user as {
-      id: number;
+      id: string;
       email: string;
       role: Role;
       createdAt: Date;

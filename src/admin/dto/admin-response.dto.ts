@@ -1,9 +1,9 @@
 export class AdminResponseDto {
-  id!: number;
+  id!: string;
   email!: string;
   role!: string;
-  token!: string;
-  refreshToken!: string;
+  access_token!: string;
+  refresh_token!: string;
   createdAt!: Date;
   updatedAt!: Date;
 }
