@@ -3,19 +3,19 @@ import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
 export class CreateHeroDto {
   @IsString()
   @IsNotEmpty()
-  first_name: string;
+  first_name!: string;
 
   @IsString()
   @IsNotEmpty()
-  last_name: string;
+  last_name!: string;
 
   @IsString()
   @IsNotEmpty()
-  title: string;
+  title!: string;
 
   @IsString()
   @IsNotEmpty()
-  description: string;
+  description!: string;
 
   @IsString()
   @IsOptional()
