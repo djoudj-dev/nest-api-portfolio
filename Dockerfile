@@ -1,24 +1,35 @@
-# Étape 1 : build
+# Étape 1 : build de l'app NestJS avec Prisma
 FROM node:22-alpine AS builder
 
 WORKDIR /app
 
-# Copie du projet
+# Active corepack pour pnpm
+RUN corepack enable
+
+# Copie des fichiers
 COPY . .
 
-# Installation des dépendancess
-RUN corepack enable && pnpm install
+# Installation des dépendances
+RUN pnpm install
 
-# Build de l'application NestJS
+# Génération du client Prisma
+RUN pnpm prisma generate
+
+# Build de l'app NestJS
 RUN pnpm run build
 
-# Étape 2 : image finale
+
+# Étape 2 : image de prod plus légère
 FROM node:22-alpine
 
 WORKDIR /app
 
-COPY --from=builder /app .
+RUN corepack enable
 
+# Copie du code et du build
+COPY --from=builder /app /app
+
+# Installe uniquement les dépendances de prod
 RUN pnpm install --prod
 
 EXPOSE 3000
