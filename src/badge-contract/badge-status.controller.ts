@@ -15,14 +15,12 @@ import { CreateBadgeStatusDto } from './dto/create-badge-status.dto';
 import { UpdateBadgeStatusDto } from './dto/update-badge-status.dto';
 import { AuthGuard } from '../admin/guards/auth.guard';
 import { AdminRoleGuard } from '../admin/guards/admin-role.guard';
-import { ApiBearerAuth } from '@nestjs/swagger';
 
 @Controller('badge-status')
 @UseGuards(AuthGuard, AdminRoleGuard)
 export class BadgeStatusController {
   constructor(private readonly badgeStatusService: BadgeStatusService) {}
 
-  @ApiBearerAuth('jwt')
   @Post()
   @HttpCode(HttpStatus.CREATED)
   create(@Body() createBadgeStatusDto: CreateBadgeStatusDto) {
