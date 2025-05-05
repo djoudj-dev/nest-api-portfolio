@@ -3,7 +3,7 @@ import { BadgeStatusType } from '@prisma/client';
 
 export class CreateBadgeStatusDto {
   @IsArray()
-  status: BadgeStatusType[];
+  status!: BadgeStatusType[];
 
   @IsOptional()
   @IsDateString()

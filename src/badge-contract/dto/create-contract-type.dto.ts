@@ -2,10 +2,10 @@ import { IsString, IsOptional, IsArray } from 'class-validator';
 
 export class CreateContractTypeDto {
   @IsString()
-  label: string;
+  label!: string;
 
   @IsString()
-  text: string;
+  text!: string;
 
   @IsOptional()
   @IsArray()
