@@ -5,7 +5,7 @@ import {
   ForbiddenException,
   UnauthorizedException,
 } from '@nestjs/common';
-import { PrismaService } from 'prisma/prisma.service';
+import { PrismaService } from '../prisma/prisma.service';
 import { UpdateAdminDto } from './dto/update-admin.dto';
 import { AdminResponseDto } from './dto/admin-response.dto';
 import { User, Role } from '@prisma/client';
