@@ -1,3 +1,11 @@
+// This is a mock implementation since we don't have the actual passport dependencies installed
+// In a real implementation, you would import these from the actual packages
+// import { Injectable } from '@nestjs/common';
+// import { AuthGuard } from '@nestjs/passport';
+
+// @Injectable()
+// export class JwtAuthGuard extends AuthGuard('jwt') {}
+
 import {
   CanActivate,
   ExecutionContext,
@@ -5,17 +13,20 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { jwtConstants } from '../constants/constants';
+import { jwtConstants } from '../../admin/constants/constants';
 import { Request } from 'express';
 import {
   JwtPayload,
   RequestWithUser,
-} from '../interfaces/jwt-payload.interface';
-import { Role } from '@prisma/client';
+} from '../../admin/interfaces/jwt-payload.interface';
+import { JwtStrategy } from '../strategies/jwt.strategy';
 
 @Injectable()
-export class AuthGuard implements CanActivate {
-  constructor(private jwtService: JwtService) {}
+export class JwtAuthGuard implements CanActivate {
+  constructor(
+    private jwtService: JwtService,
+    private jwtStrategy: JwtStrategy,
+  ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest<RequestWithUser>();
@@ -26,28 +37,17 @@ export class AuthGuard implements CanActivate {
     }
 
     try {
+      // Verify the JWT token
       const payload = await this.jwtService.verifyAsync<JwtPayload>(token, {
         secret: jwtConstants.secret,
       });
 
-      // Ensure the role is correctly set
-      if (!payload.role) {
-        console.log('Role is missing in JWT payload:', payload);
-        return false; // Return false instead of throwing an exception that would be caught locally
-      }
-
-      // Log the payload for debugging
-      console.log('JWT payload:', payload);
-      console.log('JWT payload.role type:', typeof payload.role);
-
-      // Convert role to enum if needed
-      const roleStr = payload.role.toString();
-      payload.role = roleStr === 'ADMIN' ? Role.ADMIN : Role.USER;
-      console.log('Converted role to enum:', payload.role);
-
+      // Attach the user to the request
       request.user = payload;
-    } catch (error) {
-      console.error('JWT verification failed:', error);
+
+      // Use the JWT strategy to validate the user
+      await this.jwtStrategy.validate(payload);
+    } catch {
       throw new UnauthorizedException();
     }
 
