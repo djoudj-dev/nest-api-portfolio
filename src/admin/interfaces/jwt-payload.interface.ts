@@ -7,6 +7,8 @@ export interface JwtPayload {
   role: Role;
   iat?: number;
   exp?: number;
+  access_token?: string;
+  refresh_token?: string;
 }
 
 export interface RequestWithUser extends Request {
