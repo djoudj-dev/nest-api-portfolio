@@ -10,7 +10,7 @@ RUN corepack enable && corepack prepare pnpm@latest --activate
 COPY package.json pnpm-lock.yaml ./
 COPY nest-cli.json ./
 COPY tsconfig*.json ./
-COPY prisma ./prisma/
+COPY src/prisma ./src/prisma/
 COPY src ./src
 
 # Installation des dépendances (dev + prod)
@@ -33,7 +33,7 @@ RUN corepack enable && corepack prepare pnpm@latest --activate
 
 # Copie des fichiers nécessaires pour exécuter l'app
 COPY package.json pnpm-lock.yaml ./
-COPY prisma ./prisma/
+COPY src/prisma ./src/prisma/
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/node_modules ./node_modules
 

@@ -1,5 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { PrismaService } from '../../prisma/prisma.service';
+import { PrismaService } from '../prisma/prisma.service';
 import { CreateContractTypeDto } from './dto/create-contract-type.dto';
 import { UpdateContractTypeDto } from './dto/update-contract-type.dto';
 import { ContractTypeResponseDto } from './dto/contract-type-response.dto';
