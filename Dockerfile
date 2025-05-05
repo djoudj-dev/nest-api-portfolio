@@ -17,6 +17,7 @@ RUN pnpm install --frozen-lockfile
 RUN pnpm prisma generate
 
 RUN pnpm run build
+RUN ls -la /app/dist
 
 
 # Étape 2 : Production (sans regenerer prisma)
