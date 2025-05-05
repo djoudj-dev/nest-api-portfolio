@@ -7,6 +7,7 @@ import { BadgeContractModule } from './badge-contract/badge-contract.module';
 import { HeroModule } from './hero/hero.module';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
+import { HealthModule } from './health/health.module';
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import { join } from 'path';
     PrismaModule,
     BadgeContractModule,
     HeroModule,
+    HealthModule,
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, '..', 'uploads'),
       serveRoot: '/uploads',
