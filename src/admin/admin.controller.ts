@@ -17,7 +17,6 @@ import { AuthGuard } from './guards/auth.guard';
 import { AdminRoleGuard } from './guards/admin-role.guard';
 import { GetUser } from './decorators/get-user.decorator';
 import { JwtPayload } from './interfaces/jwt-payload.interface';
-import { ApiBearerAuth } from '@nestjs/swagger';
 
 @Controller('admin')
 export class AdminController {
@@ -50,7 +49,6 @@ export class AdminController {
     return this.adminService.login(loginDto.email, loginDto.password);
   }
 
-  @ApiBearerAuth('jwt')
   @UseGuards(AuthGuard, AdminRoleGuard)
   @Patch(':id')
   async update(
