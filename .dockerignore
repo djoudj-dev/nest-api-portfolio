@@ -1,0 +1,29 @@
+# Dependencies
+node_modules
+.pnpm-store
+
+# Logs
+*-debug.log
+*-error.log
+
+# Environment
+.env
+.env.*
+!.env.example
+
+# IDE & System
+.idea
+.DS_Store
+Thumbs.db
+
+# Git
+.git
+.gitignore
+
+# Documentation
+*.md
+
+# Docker
+.dockerignore
+Dockerfile
+docker-compose*

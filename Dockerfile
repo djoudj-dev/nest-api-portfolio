@@ -1,33 +1,55 @@
-# Étape 1 : build NestJS + Prisma
+# Stage de build
 FROM node:22-alpine AS builder
 
 WORKDIR /app
 
-RUN corepack enable
+# Installation de pnpm
+RUN corepack enable && corepack prepare pnpm@latest --activate
 
-COPY . .
+# Copie de tous les fichiers nécessaires
+COPY package.json pnpm-lock.yaml ./
+COPY nest-cli.json ./
+COPY tsconfig*.json ./
+COPY prisma ./prisma/
+COPY src/ ./src/
 
-RUN pnpm install
+# Installation des dépendances
+RUN pnpm install --frozen-lockfile
+
+# Génération du client Prisma
 RUN pnpm prisma generate
+
+# Build de l'application
 RUN pnpm run build
 
-
-# Étape 2 : image minimale de prod
+# Stage de production
 FROM node:22-alpine
 
 WORKDIR /app
 
-RUN corepack enable
+# Installation de pnpm
+RUN corepack enable && corepack prepare pnpm@latest --activate
 
-# Copie le code source ET le dossier dist depuis le builder
-COPY --from=builder /app/package.json ./
-COPY --from=builder /app/pnpm-lock.yaml ./
-COPY --from=builder /app/node_modules ./node_modules
+# Copie des fichiers nécessaires
+COPY package.json pnpm-lock.yaml ./
+COPY prisma ./prisma/
+
+# Copie des fichiers de build
 COPY --from=builder /app/dist ./dist
-COPY --from=builder /app/prisma ./prisma
+COPY --from=builder /app/node_modules/.prisma/client ./node_modules/.prisma/client
 
-RUN pnpm install --prod
+# Installation des dépendances de production
+RUN pnpm install --prod --frozen-lockfile
 
+# Création du dossier uploads
+RUN mkdir -p uploads
+
+# Variables d'environnement par défaut
+ENV NODE_ENV=production \
+    PORT=3000
+
+# Exposition du port
 EXPOSE 3000
 
-CMD ["node", "dist/main.js"]
+# Démarrage de l'application
+CMD ["node", "dist/src/main.js"]
