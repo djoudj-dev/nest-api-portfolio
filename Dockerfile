@@ -6,7 +6,7 @@ WORKDIR /app
 # Copie du projet
 COPY . .
 
-# Installation des dépendances
+# Installation des dépendancess
 RUN corepack enable && pnpm install
 
 # Build de l'application NestJS
