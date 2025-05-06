@@ -19,7 +19,7 @@ import { UpdateHeroDto } from './dto/update-hero.dto';
 export class HeroController {
   constructor(private readonly heroService: HeroService) {}
 
-  @Post('upload-cv')
+  @Post('upload-cv/:id')
   @UseInterceptors(
     FileInterceptor('file', {
       storage: diskStorage({
@@ -31,13 +31,17 @@ export class HeroController {
       }),
     }),
   )
-  uploadCv(@UploadedFile() file: Express.Multer.File) {
+  async uploadCv(@Param('id') id: string, @UploadedFile() file: Express.Multer.File) {
+    const filePath = `/uploads/cv/${file.filename}`;
+    await this.heroService.update(id, { cv_path: filePath });
+
     return {
       filename: file.filename,
-      path: `/uploads/cv/${file.filename}`,
-      url: `http://localhost:3000/uploads/cv/${file.filename}`,
+      path: filePath,
+      url: `http://localhost:3000${filePath}`,
     };
   }
+
 
   @Post()
   create(@Body() createHeroDto: CreateHeroDto) {
