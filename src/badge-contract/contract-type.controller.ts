@@ -17,10 +17,10 @@ import { AuthGuard } from '../admin/guards/auth.guard';
 import { AdminRoleGuard } from '../admin/guards/admin-role.guard';
 
 @Controller('contract-type')
-@UseGuards(AuthGuard, AdminRoleGuard)
 export class ContractTypeController {
   constructor(private readonly contractTypeService: ContractTypeService) {}
 
+  @UseGuards(AuthGuard, AdminRoleGuard)
   @Post()
   @HttpCode(HttpStatus.CREATED)
   create(@Body() createContractTypeDto: CreateContractTypeDto) {
@@ -37,6 +37,7 @@ export class ContractTypeController {
     return this.contractTypeService.findOne(id);
   }
 
+  @UseGuards(AuthGuard, AdminRoleGuard)
   @Patch(':id')
   update(
     @Param('id') id: string,
@@ -45,6 +46,7 @@ export class ContractTypeController {
     return this.contractTypeService.update(id, updateContractTypeDto);
   }
 
+  @UseGuards(AuthGuard, AdminRoleGuard)
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
   remove(@Param('id') id: string) {
