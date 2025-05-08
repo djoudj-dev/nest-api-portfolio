@@ -82,8 +82,13 @@ export class AdminController {
    */
   @HttpCode(HttpStatus.OK)
   @Post('forgot-password')
-  requestPasswordReset(@Body() dto: RequestPasswordResetDto) {
-    return this.adminService.requestPasswordReset(dto);
+  async requestPasswordReset(@Body() dto: RequestPasswordResetDto) {
+    try {
+      return await this.adminService.requestPasswordReset(dto);
+    } catch (error) {
+      console.error('Erreur détaillée:', error);
+      throw error;
+    }
   }
 
   /**

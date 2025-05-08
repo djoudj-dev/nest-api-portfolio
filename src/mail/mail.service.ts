@@ -53,4 +53,15 @@ export class MailService {
       throw new Error('Failed to send password reset email');
     }
   }
+
+  async verifyConnection() {
+    try {
+      await this.transporter.verify();
+      console.log('Connection to SMTP server successful');
+      return true;
+    } catch (error) {
+      console.error('SMTP Connection error:', error);
+      return false;
+    }
+  }
 }
