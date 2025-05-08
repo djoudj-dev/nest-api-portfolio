@@ -17,6 +17,8 @@ import { AuthGuard } from './guards/auth.guard';
 import { AdminRoleGuard } from './guards/admin-role.guard';
 import { GetUser } from './decorators/get-user.decorator';
 import { JwtPayload } from './interfaces/jwt-payload.interface';
+import { RequestPasswordResetDto } from './dto/request-password-reset.dto';
+import { ResetPasswordDto } from './dto/reset-password.dto';
 
 @Controller('admin')
 export class AdminController {
@@ -71,5 +73,27 @@ export class AdminController {
   async remove(@Param('id') id: string, @GetUser() user: JwtPayload) {
     await this.adminService.remove(id);
     await this.generateAndUpdateTokens(user);
+  }
+
+  /**
+   * Request a password reset
+   * @param dto Request password reset DTO containing the email
+   * @returns A message indicating that the reset email has been sent
+   */
+  @HttpCode(HttpStatus.OK)
+  @Post('forgot-password')
+  requestPasswordReset(@Body() dto: RequestPasswordResetDto) {
+    return this.adminService.requestPasswordReset(dto);
+  }
+
+  /**
+   * Reset password using a token
+   * @param dto Reset password DTO containing the token and new password
+   * @returns A message indicating that the password has been reset
+   */
+  @HttpCode(HttpStatus.OK)
+  @Post('reset-password')
+  resetPassword(@Body() dto: ResetPasswordDto) {
+    return this.adminService.resetPassword(dto);
   }
 }

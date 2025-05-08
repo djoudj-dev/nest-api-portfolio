@@ -4,6 +4,8 @@ import { AdminService } from './admin.service';
 import { PrismaModule } from '../prisma/prisma.module';
 import { JwtModule } from '@nestjs/jwt';
 import { jwtConstants } from './constants/constants';
+import { MailModule } from '../mail/mail.module';
+import { ConfigModule } from '@nestjs/config';
 
 @Module({
   controllers: [AdminController],
@@ -16,6 +18,8 @@ import { jwtConstants } from './constants/constants';
       secret: jwtConstants.secret,
       signOptions: { expiresIn: '1h' },
     }),
+    MailModule,
+    ConfigModule,
   ],
 })
 export class AdminModule {}
