@@ -7,18 +7,21 @@ import {
   Body,
   Param,
   Put,
-  Delete,
+  Delete, UseGuards,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { HeroService } from './hero.service';
 import { CreateHeroDto } from './dto/create-hero.dto';
 import { UpdateHeroDto } from './dto/update-hero.dto';
+import { AuthGuard } from '../admin/guards/auth.guard';
+import { AdminRoleGuard } from '../admin/guards/admin-role.guard';
 
 @Controller('hero')
 export class HeroController {
   constructor(private readonly heroService: HeroService) {}
 
+  @UseGuards(AuthGuard, AdminRoleGuard)
   @Post('upload-cv/:id')
   @UseInterceptors(
     FileInterceptor('file', {
@@ -42,7 +45,7 @@ export class HeroController {
     };
   }
 
-
+  @UseGuards(AuthGuard, AdminRoleGuard)
   @Post()
   create(@Body() createHeroDto: CreateHeroDto) {
     return this.heroService.create(createHeroDto);
@@ -58,11 +61,13 @@ export class HeroController {
     return this.heroService.findOne(id);
   }
 
+  @UseGuards(AuthGuard, AdminRoleGuard)
   @Put(':id')
   update(@Param('id') id: string, @Body() updateHeroDto: UpdateHeroDto) {
     return this.heroService.update(id, updateHeroDto);
   }
 
+  @UseGuards(AuthGuard, AdminRoleGuard)
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.heroService.remove(id);
