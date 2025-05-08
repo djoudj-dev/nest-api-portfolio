@@ -4,6 +4,7 @@ import {
   ConflictException,
   ForbiddenException,
   UnauthorizedException,
+  BadRequestException,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { UpdateAdminDto } from './dto/update-admin.dto';
@@ -12,6 +13,11 @@ import { User, Role } from '@prisma/client';
 import * as bcrypt from 'bcryptjs';
 import { CreateAdminDto } from './dto/create-admin.dto';
 import { JwtService } from '@nestjs/jwt';
+import { MailService } from '../mail/mail.service';
+import { ConfigService } from '@nestjs/config';
+import { v4 as uuidv4 } from 'uuid';
+import { RequestPasswordResetDto } from './dto/request-password-reset.dto';
+import { ResetPasswordDto } from './dto/reset-password.dto';
 
 export interface CreateAdminInput {
   email: string;
@@ -24,6 +30,8 @@ export class AdminService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly jwtService: JwtService,
+    private readonly mailService: MailService,
+    private readonly configService: ConfigService,
   ) {}
 
   async register(dto: CreateAdminDto) {
@@ -46,7 +54,7 @@ export class AdminService {
     const user = await this.create({
       email,
       password: hashedPassword,
-      role: Role.ADMIN, // Set role to ADMIN for the first user
+      role: Role.ADMIN, // Set the role to ADMIN for the first user
     });
 
     const payload = { sub: user.id, email: user.email, role: user.role };
@@ -186,5 +194,86 @@ export class AdminService {
     dto.createdAt = createdAt;
     dto.updatedAt = updatedAt;
     return dto;
+  }
+
+  /**
+   * Request a password reset
+   * @param dto Request password reset DTO containing the email
+   * @returns A message indicating that the reset email has been sent
+   */
+  async requestPasswordReset(dto: RequestPasswordResetDto): Promise<{ message: string }> {
+    const user = await this.findByEmail(dto.email);
+
+    // Always return success even if user not found (security best practice)
+    if (!user) {
+      return { message: 'Si votre email est enregistré, vous recevrez un lien de réinitialisation.' };
+    }
+
+    // Generate a unique reset token
+    const resetToken = uuidv4();
+
+    // Set token expiration (default: 1 hour)
+    const expirationTime = new Date();
+    const resetExpiration = this.configService.get<number>('PASSWORD_RESET_EXPIRATION') || 3600;
+    expirationTime.setSeconds(expirationTime.getSeconds() + resetExpiration);
+
+    // Save the reset token and expiration to the user record
+    await this.prisma.user.update({
+      where: { id: user.id },
+      data: {
+        reset_password_token: resetToken,
+        reset_token_expires: expirationTime,
+      },
+    });
+
+    // Send the password reset email
+    await this.mailService.sendPasswordResetEmail(
+      user.email,
+      resetToken,
+      user.email, // Using email as username
+    );
+
+    return { message: 'Si votre email est enregistré, vous recevrez un lien de réinitialisation.' };
+  }
+
+  /**
+   * Reset password using a token
+   * @param dto Reset password DTO containing the token and new password
+   * @returns A message indicating that the password has been reset
+   */
+  async resetPassword(dto: ResetPasswordDto): Promise<{ message: string }> {
+    // Validate password confirmation
+    if (dto.password !== dto.passConfirm) {
+      throw new ConflictException('Les mots de passe ne correspondent pas');
+    }
+
+    // Find user by reset token
+    const user = await this.prisma.user.findFirst({
+      where: {
+        reset_password_token: dto.token,
+        reset_token_expires: {
+          gt: new Date(), // Token must not be expired
+        },
+      },
+    });
+
+    if (!user) {
+      throw new BadRequestException('Token invalide ou expiré');
+    }
+
+    // Hash the new password
+    const hashedPassword = await bcrypt.hash(dto.password, 10);
+
+    // Update the user's password and clear the reset token
+    await this.prisma.user.update({
+      where: { id: user.id },
+      data: {
+        password: hashedPassword,
+        reset_password_token: null,
+        reset_token_expires: null,
+      },
+    });
+
+    return { message: 'Votre mot de passe a été réinitialisé avec succès' };
   }
 }
